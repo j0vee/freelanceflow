@@ -13,6 +13,7 @@ function App() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetch("/api/leads")
@@ -41,6 +42,7 @@ function App() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setSuccessMessage(""); // Clear any previous message
 
     try {
       const res = await fetch("/api/leads", {
@@ -48,14 +50,38 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+      if (!res.ok) throw new Error("Network response was not ok");
+
       const newLead = await res.json();
       setLeads((prev) => [...prev, newLead]);
-      setFormData({ name: "", email: "", budget: "", notes: "" }); //reset form
+      setFormData({ name: "", email: "", budget: "", notes: "" });
+      setSuccessMessage("Lead added successfully!");
     } catch (err) {
       console.error("Failed to submit lead:", err);
       alert("Error submitting lead");
     } finally {
       setSubmitting(false);
+      //Remove the success message after 3 seconds
+      setTimeout(() => setSuccessMessage(""), 3000);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+
+    try {
+      const res = await fetch(`/api/leads/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        throw new Error(`Failed to delete lead with id ${id}`);
+      }
+
+      setLeads((prev) => prev.filter((lead) => lead.id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("There was a problem deleting the lead.");
     }
   };
 
@@ -81,11 +107,26 @@ function App() {
               Budget:${lead.budget}
               <br />
               {lead.notes || "No notes"}
+              <br />
+              <button
+                onClick={() => handleDelete(lead.id)}
+                style={{
+                  marginTop: "0.5rem",
+                  color: "white",
+                  background: "red",
+                  border: "none",
+                  padding: "0.25rem 0.5rem",
+                }}
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
       )}
-
+      {successMessage && (
+        <p style={{ color: "green", marginTop: "1rem" }}>{successMessage}</p>
+      )}
       <hr style={{ margin: "2rem 0" }} />
       <h2>Add New Lead</h2>
 
