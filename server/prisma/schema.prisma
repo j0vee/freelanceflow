@@ -17,7 +17,7 @@ model Lead {
   id        Int      @id @default(autoincrement())
   name      String
   email     String
-  budget    Int
+  budget    Int?
   status    String   @default("New") // "New", "Contacted", "Proposal Sent", etc.
   notes     String?
   createdAt DateTime @default(now())

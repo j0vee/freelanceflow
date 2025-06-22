@@ -12,7 +12,8 @@ res.json(leads);
 router.post('/', async (req,res) => {
 const { name, email, budget, notes } = req.body;
 const lead = await prisma.lead.create({
-data: {name,email,budget,notes},
+data: {name,email,budget: isNaN(parseInt(budget)) ? null : parseInt(budget, 10)
+,notes},
 });
 res.json(lead);
 });
