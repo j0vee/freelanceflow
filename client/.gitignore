@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# production
+dist/
+
+# Vite
+.vite/
+
+# logs
+npm-debug.log*
+
+# environment
+.env
+
+# system
+.DS_Store
